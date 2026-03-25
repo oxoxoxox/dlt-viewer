@@ -38,23 +38,23 @@ jobs:
         run: cmake --version
       - name: Build project
         run: scripts/darwin/build_cmake_qt${{ matrix.qt }}.sh
-      - name: Codesign app bundle
-        if: "! github.event.pull_request.head.repo.fork " # not running on a fork
-        # Extract the secrets we defined earlier as environment variables
-        env:
-          MACOS_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          MACOS_CERTIFICATE_PWD: ${{ secrets.P12_PASSWORD }}
-          MACOS_CERTIFICATE_NAME: ${{ secrets.APPLE_CERTIFICATE_NAME }}
-          MACOS_CI_KEYCHAIN_PWD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: scripts/darwin/codesign.sh
+      # - name: Codesign app bundle
+      #   if: "! github.event.pull_request.head.repo.fork " # not running on a fork
+      #   # Extract the secrets we defined earlier as environment variables
+      #   env:
+      #     MACOS_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+      #     MACOS_CERTIFICATE_PWD: ${{ secrets.P12_PASSWORD }}
+      #     MACOS_CERTIFICATE_NAME: ${{ secrets.APPLE_CERTIFICATE_NAME }}
+      #     MACOS_CI_KEYCHAIN_PWD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      #   run: scripts/darwin/codesign.sh
 
-      - name: Notarize app bundle
-        if: "! github.event.pull_request.head.repo.fork " # not running on a fork
-        env:
-          PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.APPLE_ID }}
-          PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.TEAM_ID }}
-          PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.APP_PASSWORD }}
-        run: scripts/darwin/notarize.sh
+      # - name: Notarize app bundle
+      #   if: "! github.event.pull_request.head.repo.fork " # not running on a fork
+      #   env:
+      #     PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.APPLE_ID }}
+      #     PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.TEAM_ID }}
+      #     PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.APP_PASSWORD }}
+      #   run: scripts/darwin/notarize.sh
 
       - name: Artifact Creation
         run: |
@@ -184,23 +184,23 @@ jobs:
             -libpath=$(pwd)/build/install/DLTViewer.app/Contents/Frameworks \
             -executable=$(pwd)/build/install/DLTViewer.app/Contents/MacOS/dlt-viewer
 
-    - name: Codesign app bundle
-      if: "! github.event.pull_request.head.repo.fork " # not running on a fork
-       # Extract the secrets we defined earlier as environment variables
-      env:
-        MACOS_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-        MACOS_CERTIFICATE_PWD: ${{ secrets.P12_PASSWORD }}
-        MACOS_CERTIFICATE_NAME: ${{ secrets.APPLE_CERTIFICATE_NAME }}
-        MACOS_CI_KEYCHAIN_PWD: ${{ secrets.KEYCHAIN_PASSWORD }}
-      run: scripts/darwin/codesign.sh
+    # - name: Codesign app bundle
+    #   if: "! github.event.pull_request.head.repo.fork " # not running on a fork
+    #    # Extract the secrets we defined earlier as environment variables
+    #   env:
+    #     MACOS_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+    #     MACOS_CERTIFICATE_PWD: ${{ secrets.P12_PASSWORD }}
+    #     MACOS_CERTIFICATE_NAME: ${{ secrets.APPLE_CERTIFICATE_NAME }}
+    #     MACOS_CI_KEYCHAIN_PWD: ${{ secrets.KEYCHAIN_PASSWORD }}
+    #   run: scripts/darwin/codesign.sh
 
-    - name: Notarize app bundle
-      if: "! github.event.pull_request.head.repo.fork " # not running on a fork
-      env:
-        PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.APPLE_ID }}
-        PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.TEAM_ID }}
-        PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.APP_PASSWORD }}
-      run: scripts/darwin/notarize.sh
+    # - name: Notarize app bundle
+    #   if: "! github.event.pull_request.head.repo.fork " # not running on a fork
+    #   env:
+    #     PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.APPLE_ID }}
+    #     PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.TEAM_ID }}
+    #     PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.APP_PASSWORD }}
+    #   run: scripts/darwin/notarize.sh
   
     - name: Compress artifacts
       run: |
