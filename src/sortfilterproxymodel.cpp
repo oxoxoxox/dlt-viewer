@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QDateTime>
+#include <QCollator>
 
 #include "sortfilterproxymodel.h"
 #include "fieldnames.h"
@@ -51,9 +52,13 @@ bool SortFilterProxyModel::lessThan(const QModelIndex &left,
             break;
         case ALPHABETICALLY:
         default:
-            /* Default sorting type */
-            ret_val = QString::localeAwareCompare(leftData.toString(), rightData.toString()) < 0;
+        {
+            QCollator collator;
+            collator.setNumericMode(true);
+            collator.setCaseSensitivity(Qt::CaseInsensitive);
+            ret_val = collator.compare(leftData.toString(), rightData.toString()) < 0;
             break;
+        }
         }
     }
     else

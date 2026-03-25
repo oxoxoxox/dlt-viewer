@@ -8,6 +8,7 @@
 #include <QTime>
 #include <QCryptographicHash>
 #include <QMutexLocker>
+#include <QCollator>
 #include <QDir>
 #include <QFileInfo>
 #include <vector>
@@ -1027,7 +1028,12 @@ QString DltFileIndexer::filenameFilterIndexCache(QDltFilterList &filterList,QStr
 
     // create string to be hashed
     if(sortByTimeEnabled || sortByTimestampEnabled)
-        filenames.sort();
+    {
+        QCollator collator;
+        collator.setNumericMode(true);
+        collator.setCaseSensitivity(Qt::CaseInsensitive);
+        std::sort(filenames.begin(), filenames.end(), collator);
+    }
     hashString = filenames.join(QString("_"));
     hashString += "_" + QString("%1").arg(dltFile->fileSize());
 

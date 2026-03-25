@@ -55,6 +55,7 @@
 #include <QDirIterator>
 #include <QThread>
 #include <QTableWidget>
+#include <QCollator>
 
 #if defined(_MSC_VER)
 #include <io.h>
@@ -862,7 +863,10 @@ void MainWindow::initFileHandling()
     {
         qDebug() << "### Load DLT files";
         QStringList logFiles = QDltOptManager::getInstance()->getLogFiles();
-        logFiles.sort();
+        QCollator collator;
+        collator.setNumericMode(true);
+        collator.setCaseSensitivity(Qt::CaseInsensitive);
+        std::sort(logFiles.begin(), logFiles.end(), collator);
         openDltFile(logFiles);
        /* Command line file is treated as temp file */
         outputfileIsTemporary = true;
@@ -1256,6 +1260,10 @@ void MainWindow::on_action_menuFile_Open_triggered()
 
     if(!dltFileNames.isEmpty()&&pcapFileNames.isEmpty()&&mf4FileNames.isEmpty())
     {
+        QCollator collator;
+        collator.setNumericMode(true);
+        collator.setCaseSensitivity(Qt::CaseInsensitive);
+        std::sort(dltFileNames.begin(), dltFileNames.end(), collator);
         onOpenTriggered(dltFileNames);
     }
     else if(dltFileNames.isEmpty()&&!pcapFileNames.isEmpty()&&mf4FileNames.isEmpty())
@@ -6618,7 +6626,12 @@ void MainWindow::pluginsAutoload(QString version)
             if(false == txtFilesAndDirectories.isEmpty() )
              {
                 if(txtFilesAndDirectories.size()>1)
-                    txtFilesAndDirectories.sort(); // sort if several files are found
+                {
+                    QCollator collator;
+                    collator.setNumericMode(true);
+                    collator.setCaseSensitivity(Qt::CaseInsensitive);
+                    std::sort(txtFilesAndDirectories.begin(), txtFilesAndDirectories.end(), collator);
+                }
 
                 // file with version string found
                 QString filename = searchPath + "/" + txtFilesAndDirectories[0];
@@ -7880,6 +7893,10 @@ void MainWindow::dropEvent(QDropEvent *event)
         }
         if(!filenames.isEmpty())
         {
+            QCollator collator;
+            collator.setNumericMode(true);
+            collator.setCaseSensitivity(Qt::CaseInsensitive);
+            std::sort(filenames.begin(), filenames.end(), collator);
             /* DLT log file dropped */
             openDltFile(filenames);
             outputfileIsTemporary = false;
