@@ -62,24 +62,24 @@ jobs:
             -libpath=$(pwd)/build/install/DLTViewer.app/Contents/Frameworks \
             -executable=$(pwd)/build/install/DLTViewer.app/Contents/MacOS/dlt-viewer
 
-    - name: Codesign app bundle
-      if: "! github.event.pull_request.head.repo.fork " # not running on a fork
-       # Extract the secrets we defined earlier as environment variables
-      env:
-        MACOS_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-        MACOS_CERTIFICATE_PWD: ${{ secrets.P12_PASSWORD }}
-        MACOS_CERTIFICATE_NAME: ${{ secrets.APPLE_CERTIFICATE_NAME }}
-        MACOS_CI_KEYCHAIN_PWD: ${{ secrets.KEYCHAIN_PASSWORD }}
-      run: scripts/darwin/codesign.sh
+    # - name: Codesign app bundle
+    #   if: "! github.event.pull_request.head.repo.fork " # not running on a fork
+    #    # Extract the secrets we defined earlier as environment variables
+    #   env:
+    #     MACOS_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+    #     MACOS_CERTIFICATE_PWD: ${{ secrets.P12_PASSWORD }}
+    #     MACOS_CERTIFICATE_NAME: ${{ secrets.APPLE_CERTIFICATE_NAME }}
+    #     MACOS_CI_KEYCHAIN_PWD: ${{ secrets.KEYCHAIN_PASSWORD }}
+    #   run: scripts/darwin/codesign.sh
 
-    - name: Notarize app bundle
-      if: "! github.event.pull_request.head.repo.fork " # not running on a fork
-      env:
-        PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.APPLE_ID }}
-        PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.TEAM_ID }}
-        PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.APP_PASSWORD }}
-      run: scripts/darwin/notarize.sh
-  
+    # - name: Notarize app bundle
+    #   if: "! github.event.pull_request.head.repo.fork " # not running on a fork
+    #   env:
+    #     PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.APPLE_ID }}
+    #     PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.TEAM_ID }}
+    #     PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.APP_PASSWORD }}
+    #   run: scripts/darwin/notarize.sh
+
     - name: Compress artifacts
       run: |
         cd $(pwd)/build
@@ -188,7 +188,7 @@ jobs:
               build/dist/DLTViewer*.7z
               build/dist/DLTViewer*.exe
               build/dist/*.md
- 
+
   createRelease:
     name: Create release
     runs-on: ubuntu-24.04
@@ -207,7 +207,7 @@ jobs:
       #   with:
       #     name: DLT-Linux
       #   continue-on-error: true
-        
+
       - name: Download DLT macOS 14 artifacts arm64
         uses: actions/download-artifact@v8
         with:
@@ -227,7 +227,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: DLTViewer-windows-x86_64
-    
+
       - name: Download DLT Windows arm artifacts
         uses: actions/download-artifact@v8
         with:
