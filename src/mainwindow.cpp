@@ -58,6 +58,7 @@
 #include <QTableWidget>
 #include <QToolButton>
 #include <QPainter>
+#include <QCollator>
 
 #if defined(_MSC_VER)
 #include <io.h>
@@ -352,7 +353,7 @@ void MainWindow::initState()
     /* Shortcut for Copy Selection Payload to Clipboard */
     copyPayloadShortcut = new QShortcut(QKeySequence("Ctrl+P"), this);
     connect(copyPayloadShortcut, &QShortcut::activated, this, &MainWindow::onActionMenuConfigCopyPayloadToClipboardTriggered);
-  
+
     /* Shortcut for Mark/Unmark lines */
     markShortcut = new QShortcut(QKeySequence("Ctrl+M"), this);
     connect(markShortcut, &QShortcut::activated, this, &MainWindow::mark_unmark_lines);
@@ -954,7 +955,10 @@ void MainWindow::initFileHandling()
     {
         qDebug() << "### Load DLT files";
         QStringList logFiles = QDltOptManager::getInstance()->getLogFiles();
-        logFiles.sort();
+        QCollator collator;
+        collator.setNumericMode(true);
+        collator.setCaseSensitivity(Qt::CaseInsensitive);
+        std::sort(logFiles.begin(), logFiles.end(), collator);
         openDltFile(logFiles);
        /* Command line file is treated as temp file */
         outputfileIsTemporary = true;
@@ -1376,6 +1380,10 @@ void MainWindow::on_action_menuFile_Open_triggered()
 
     if(!dltFileNames.isEmpty()&&pcapFileNames.isEmpty()&&mf4FileNames.isEmpty())
     {
+        QCollator collator;
+        collator.setNumericMode(true);
+        collator.setCaseSensitivity(Qt::CaseInsensitive);
+        std::sort(dltFileNames.begin(), dltFileNames.end(), collator);
         onOpenTriggered(dltFileNames);
     }
     else if(dltFileNames.isEmpty()&&!pcapFileNames.isEmpty()&&mf4FileNames.isEmpty())
@@ -1496,7 +1504,7 @@ bool MainWindow::openDltFile(QStringList fileNames)
     /* if the input files are not in DLT format, convert them first */
     if (QDltOptManager::getInstance()->get_inputmode() == e_inputmode::STREAM){
         /* tempfile must be static to prevent deletion before application finishes */
-        static QTemporaryFile tempfile; 
+        static QTemporaryFile tempfile;
         DltFile importfile;
 
         dlt_file_init(&importfile,0);
@@ -1663,7 +1671,7 @@ void MainWindow::on_action_menuFile_Import_DLT_Stream_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Import DLT Stream"), workingDirectory.getDltDirectory(), tr("DLT Stream file (*.*)"));
-   
+
     if(fileName.isEmpty())
         return;
 
@@ -1692,7 +1700,7 @@ void MainWindow::on_action_menuFile_Import_DLT_Stream_triggered()
     qDebug() << "DLT file version " << version;
     auto dltReadFunc = (version == 2)  ? dltv2_file_read_raw : dlt_file_read_raw;
 	while (dltReadFunc(&importfile,false,0)>=0)
-	        {   
+	        {
 	            outputfile.write((char*)importfile.msg.headerbuffer,importfile.msg.headersize);
 	            outputfile.write((char*)importfile.msg.databuffer,importfile.msg.datasize);
 	        }
@@ -1822,12 +1830,12 @@ bool MainWindow::isBackgroundOperationInProgress() const
     if (isExportInProgress()) {
         return true;
     }
-    
+
     // Check if DLT indexing is running
     if (dltIndexer && dltIndexer->isRunning()) {
         return true;
     }
-    
+
     return false;
 }
 
@@ -2090,7 +2098,7 @@ void MainWindow::exportSelection_searchTable(QDltExporter::DltExportFormat forma
 
     // Determine which rows to process based on operation type and selection
     QModelIndexList rowsToProcess;
-    
+
     if (!fileName.trimmed().isEmpty()) {
         // File export operation - always export all rows
         rowsToProcess = allRows;
@@ -2780,7 +2788,7 @@ void MainWindow::reloadLogFile(bool update, bool multithreaded)
     /* check if in logging only mode, then do not create index */
     m_tableModel->setLoggingOnlyMode(settings->loggingOnlyMode);
     m_tableModel->modelChanged();
-    
+
     if( 0 != settings->loggingOnlyMode )
     {
         qDebug() << "Logging only mode !";
@@ -4306,21 +4314,21 @@ void MainWindow::connectECU(EcuItem* ecuitem,bool force)
         // Handle CRLF window when ECU connects
         if (m_crlfFilterWindow) {
             // Show warning to user about switching to live logging
-            QMessageBox::StandardButton reply = QMessageBox::question(this, 
-                "CRLF Window Open", 
+            QMessageBox::StandardButton reply = QMessageBox::question(this,
+                "CRLF Window Open",
                 "CRLF window is open. CRLF feature does not support live logging. "
                 "Connecting ECU will close the CRLF window and append live logs to the current file. "
                 "Continue?",
                 QMessageBox::Yes | QMessageBox::No);
-                
+
             if (reply == QMessageBox::No) {
                 return; // User cancelled ECU connection
             }
-            
+
             m_crlfFilterWindow->closeWindow();
             m_crlfFilterWindow = nullptr;
         }
-        
+
         // because it does not work reliably during live logging.
         if(settings && settings->includeManualMarkersInFilter)
             clearManualMarkerUnionInFilter();
@@ -6896,7 +6904,12 @@ void MainWindow::pluginsAutoload(QString version)
             if(false == txtFilesAndDirectories.isEmpty() )
              {
                 if(txtFilesAndDirectories.size()>1)
-                    txtFilesAndDirectories.sort(); // sort if several files are found
+                {
+                    QCollator collator;
+                    collator.setNumericMode(true);
+                    collator.setCaseSensitivity(Qt::CaseInsensitive);
+                    std::sort(txtFilesAndDirectories.begin(), txtFilesAndDirectories.end(), collator);
+                }
 
                 // file with version string found
                 QString filename = searchPath + "/" + txtFilesAndDirectories[0];
@@ -7227,7 +7240,7 @@ void MainWindow::splitLogsEcuid()
 
 // Shows CRLF messages in a single window
 void MainWindow::showCrlfMessages()
-{   
+{
     // Verify DLT file has messages
     if (qfile.size() == 0) {
         QMessageBox::information(this, "No Messages", "DLT file is not loaded or contains no messages.");
@@ -7247,12 +7260,12 @@ void MainWindow::showCrlfMessages()
     m_crlfFilterWindow->setMessageStore(&m_messageStore);
     m_crlfFilterWindow->setIndexService(&m_indexService);
     m_crlfFilterWindow->setDecodeCacheService(&m_decodeCacheService);
-    
+
     // Connect navigation signal to allow double-click navigation to main window
     connect(m_crlfFilterWindow, &CrlfFilterWindow::jumpToMessageRequested, this, &MainWindow::jump_to_line);
     // Add connection to handle main window closing
     connect(this, &MainWindow::destroyed, m_crlfFilterWindow, &CrlfFilterWindow::cleanup);
-    
+
     // Connect to handle CRLF window closing to reset the pointer
     connect(m_crlfFilterWindow, &QObject::destroyed, this, [this]() {
         m_crlfFilterWindow = nullptr;
@@ -7968,11 +7981,11 @@ void MainWindow::on_tableView_customContextMenuRequested(QPoint pos)
 
     action = new QAction("Show CRLF Messages", &menu);
     connect(action, SIGNAL(triggered()), this, SLOT(showCrlfMessages()));
-    
+
     // Disable CRLF option during live logging or with temporary files
     bool crlfEnabled = !isLiveLoggingActive() && !outputfileIsTemporary;
     action->setEnabled(crlfEnabled);
-    
+
     menu.addAction(action);
 
     /* show popup menu */
@@ -8240,6 +8253,10 @@ void MainWindow::dropEvent(QDropEvent *event)
         }
         if(!filenames.isEmpty())
         {
+            QCollator collator;
+            collator.setNumericMode(true);
+            collator.setCaseSensitivity(Qt::CaseInsensitive);
+            std::sort(filenames.begin(), filenames.end(), collator);
             /* DLT log file dropped */
             openDltFile(filenames);
             outputfileIsTemporary = false;
