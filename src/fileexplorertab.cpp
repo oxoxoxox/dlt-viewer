@@ -8,6 +8,7 @@
 #include <QClipboard>
 #include <QUrl>
 #include <QDirIterator>
+#include <QCollator>
 
 FileExplorerTab::FileExplorerTab(QWidget* parent)
     : QWidget{parent},
@@ -159,6 +160,10 @@ QStringList FileExplorerTab::getMultiFilesFromSelection(const QModelIndexList& r
     for (const auto &row : rows) {
         files.append(m_fsModel->filePath(m_fsSortProxyModel->mapToSource(row)));
     }
+    QCollator collator;
+    collator.setNumericMode(true);
+    collator.setCaseSensitivity(Qt::CaseInsensitive);
+    std::sort(files.begin(), files.end(), collator);
     return files;
 }
 
@@ -177,6 +182,9 @@ QStringList FileExplorerTab::getAllFilesFromSelection(const QModelIndexList& row
         }
     }
     QStringList result(files.begin(), files.end());
-    result.sort();
+    QCollator collator;
+    collator.setNumericMode(true);
+    collator.setCaseSensitivity(Qt::CaseInsensitive);
+    std::sort(result.begin(), result.end(), collator);
     return result;
 }
