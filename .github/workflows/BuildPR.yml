@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        osversion: [ latest, 15, 15-intel ]
+        osversion: [ 26, 15, 15-intel ]
 
     steps:
     - name: Checkout source
@@ -24,6 +24,7 @@ jobs:
     - name: Install Qt 6 (Framework build)
       uses: jurplel/install-qt-action@v4
       with:
+        version: '6.8.4'
         host: 'mac'
         target: 'desktop'
         arch: 'clang_64'
@@ -208,10 +209,10 @@ jobs:
       #     name: DLT-Linux
       #   continue-on-error: true
 
-      - name: Download DLT macOS 14 artifacts arm64
+      - name: Download DLT macOS 26 artifacts arm64
         uses: actions/download-artifact@v8
         with:
-          name: DLTViewer-macos14-qt6
+          name: DLTViewer-macos26-qt6
 
       - name: Download DLT macOS 15 artifacts arm64
         uses: actions/download-artifact@v8
